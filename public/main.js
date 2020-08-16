@@ -52,7 +52,7 @@ function getLocalMedia(){
         camAudioTrack = stream.getAudioTracks()[0];
     })
     .catch(err => {
-        alert("Error : ", err+"couldnt ask for cam perms")
+        alert("Error : ", "couldnt ask for cam perms")
     })
     mute.style.display = "block"
 }
@@ -68,7 +68,7 @@ function getLocalMediaS(){
     videoSender.replaceTrack(screenVideoTrack);
   })
   .catch(err => {
-        console.log("Error : ", err)
+        console.log("Error : ", "no screenshare perm")
     })
 }
 
