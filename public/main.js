@@ -28,19 +28,20 @@ const config = {
     ]
 }
 
-const constraints = {
-    video : {
-        width: 500,
-        height: 300,
-        frameRate: { max: 60 }
-    },
-    audio: {
-        sampleRate: 48000,
-        channelCount: 2,
-        volume: 1.0,
-        echoCancellation: true
-    }
-}
+// const constraints = {
+//     video : {
+//         width: 500,
+//         height: 300,
+//         frameRate: { max: 60 }
+//     },
+//     audio: {
+//         sampleRate: 48000,
+//         channelCount: 2,
+//         volume: 1.0,
+//         echoCancellation: true
+//     }
+// }
+var constraints = { audio: true, video:false }
 
 function getLocalMedia(){
     navigator.mediaDevices.getUserMedia(constraints)
