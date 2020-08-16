@@ -41,7 +41,7 @@ const config = {
 //         echoCancellation: true
 //     }
 // }
-var constraints = { audio: true, video:false }
+var constraints = { audio: true, video:true }
 
 function getLocalMedia(){
     navigator.mediaDevices.getUserMedia(constraints)
