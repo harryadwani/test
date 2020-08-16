@@ -52,7 +52,7 @@ function getLocalMedia(){
         camAudioTrack = stream.getAudioTracks()[0];
     })
     .catch(err => {
-        alert("Error : ", err)
+        alert("Error : ", err+"couldnt ask for cam perms")
     })
     mute.style.display = "block"
 }
