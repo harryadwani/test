@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" >
+    <link rel="icon" href="favicon.png" type="image/png" sizes="16x16">
+    <style>
+    .no-gutter > [class*='col-']{
+        padding-right:0;
+        padding-left:0;
+    }
+    video{
+        width: 100%;
+        height: auto;
+        margin: 8px;
+    }
+    #mute, #unmute, #hangup, #vd_off, #vd_on, #ss_off, #ss_on{
+        display: none;
+    }
+    #btns{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    input[type=button]{
+        margin: 10px;
+    }
+    </style>
+    <title>WebRTC</title>
+</head>
+<body onload="getLocalMedia();">
+
+    <div class="container" id="container">
+
+        <div class="row no-gutters" id="stream1">
+            <video id="local" class="col" autoplay muted></video>
+        </div>
+
+        <div class="row no-gutters" id="stream2">
+        </div>
+        
+    </div>
+
+    <div class="container" style="text-align: center;" id="btns">
+        <input type="button" class="btn btn-primary" value="Call" id="call">
+        <input type="button" class="btn btn-success" value="Receive" id="receive">
+
+        <input type="button" class="btn btn-info" value="Mute" id="mute">
+        <input type="button" class="btn btn-info" value="Unmute" id="unmute">
+
+        <input type="button" class="btn btn-danger" value="Hang Up" id="hangup">
+    </div>
+    <div class="container" style="text-align: center;" id="btns">
+        <input type="button" class="btn btn-info" value="Video Off" id="vd_off">
+        <input type="button" class="btn btn-info" value="Video On" id="vd_on">
+        
+        <input type="button" class="btn btn-info" value="Screen Share Off" id="ss_off">
+        <input type="button" class="btn btn-info" value="Screen Share On" id="ss_on">
+    </div>
+
+    <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="main.js"></script>
+
+</body>
+</html>
