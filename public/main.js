@@ -9,6 +9,18 @@ const vd_off = document.getElementById("vd_off")
 const vd_on = document.getElementById("vd_on")
 const ss_off = document.getElementById("ss_off")
 const ss_on = document.getElementById("ss_on")
+const gs_on = document.getElementById("gs_on")
+const gs_off = document.getElementById("gs_off")
+const gsnoti = document.getElementById("gsnoti")
+
+
+
+//for green screen
+let c1,ctx1,c_tmp,ctx_tmp; 
+
+c1 = document.getElementById('output-canvas')
+gstoggle=0
+
 
 var camVideoTrack
 var videoSender
@@ -56,6 +68,11 @@ function getLocalMedia(){
         alert("Error : ", "couldnt ask for cam perms")
     })
     mute.style.display = "block"
+    gs_off.style.display= "none"
+   // c1.style.display="none"
+    gsnoti.style.display="none"
+
+
 }
 
 //for screenshare
@@ -199,24 +216,16 @@ socket.on("delete", (id) => {
 mute.onclick = () => {
     mute.style.display = "none"
     unmute.style.display = "block"
-    //socket.emit("mute")
     localStream.getAudioTracks()[0].enabled = false
 }
 
 unmute.onclick = () => {
     unmute.style.display = "none"
     mute.style.display = "block"
-    //socket.emit("unmute")
     localStream.getAudioTracks()[0].enabled = true
 }
 
-// socket.on("mute", (id) => {
-//     localStream.getAudioTracks()[0].enabled = false
-// })
 
-// socket.on("unmute", (id) => {
-//     localStream.getAudioTracks()[0].enabled = true
-// })
 
 vd_off.onclick = () => {
     vd_off.style.display = "none"
@@ -233,20 +242,6 @@ vd_on.onclick = () => {
 ss_on.onclick = () => {
     ss_on.style.display = "none"
     ss_off.style.display = "block"
-
-//     let displayMediaOptions = {
-//         video: true,
-//         audio: false
-//     }
-
-//     navigator.mediaDevices.getDisplayMedia(displayMediaOptions)
-//     .then(function(stream){
-//         local.srcObject=stream
-//         peer[id].removeStream(localStream)
-//         peer[id].addStream(stream)
-        
-//         screenshareGlobalStream = stream
-//   })
     getLocalMediaS();
 }
 
@@ -262,3 +257,132 @@ ss_off.onclick = () => {
     local.srcObject = localStream
     videoSender.replaceTrack(localStream.getVideoTracks()[0]);
 }
+
+gs_on.onclick = () => {
+    gstoggle=1
+    gs_on.style.display="none"
+    gs_off.style.display="block"
+    gsnoti.style.display="block"
+
+   // c1.style.display="block"
+    //local.hidden=true
+    //local.style.display="none"
+    computeFrame()
+    var stream = c1.captureStream(25);
+    videoSender.replaceTrack(stream.getVideoTracks()[0]);
+    // local.addEventListener("load", computeFrame );
+}
+
+gs_off.onclick = () => {
+    gs_off.style.display="none"
+    gs_on.style.display="block"
+    //local.hidden=false
+    //c1.style.display="none"
+    gsnoti.style.display="none"
+
+    gstoggle=0
+    videoSender.replaceTrack(localStream.getVideoTracks()[0]);
+
+}
+
+
+
+//green screen
+
+function computeFrame() {
+      
+     if(gstoggle==0)
+     {return;}
+
+      ctx1 = c1.getContext('2d');
+    
+       c_tmp = document.createElement('canvas');
+       c_tmp.setAttribute('width', 320);
+       c_tmp.setAttribute('height',240);
+       ctx_tmp = c_tmp.getContext('2d');
+    
+       ctx_tmp.drawImage(local, 0, 0, 320 , 240 );
+       let frame = ctx_tmp.getImageData(0, 0, 320 , 240 );
+   
+    //    ctx_tmp.drawImage(video2, 0, 0, video2.videoWidth , video2.videoHeight );
+    //    let frame2 = ctx_tmp.getImageData(0, 0, video2.videoWidth , video2.videoHeight );
+   
+    //    for (let i = 0; i < frame.data.length /4; i++) {
+    //      let r = frame.data[i * 4 + 0];
+    //      let g = frame.data[i * 4 + 1];
+    //      let b = frame.data[i * 4 + 2];
+   
+    //      if (r > 70 && r < 160 && g > 95 && g < 220 && b > 25 && b < 150) 
+    //      {  
+    //          frame.data[i * 4 + 0] = 0//frame2.data[i * 4 + 0];
+    //          frame.data[i * 4 + 1] = 0//frame2.data[i * 4 + 1];
+    //          frame.data[i * 4 + 2] = 0//frame2.data[i * 4 + 2];
+    //      }
+    //    }
+
+    for (let i = 0; i < frame.data.length /4; i++) {
+        let r = frame.data[i * 4 + 0];
+        let g = frame.data[i * 4 + 1];
+        let b = frame.data[i * 4 + 2];
+        let a = frame.data[i * 4 + 3];
+        
+        var selectedR = 110;
+            var        selectedG = 154;
+               var     selectedB = 90;
+                    if (r <= selectedR && g >= selectedG && b >= selectedB) {
+        
+        // if (r > 70 && r < 160 && g > 95 && g < 220 && b > 25 && b < 150) 
+        // {  
+            frame.data[i * 4 + 0] = 0;
+            frame.data[i * 4 + 1] = 0;
+            frame.data[i * 4 + 2] = 0;
+            //frame.data[i * 4 + 3] = 0;
+        }
+        }
+        
+        
+        for (var y = 0; y < frame.height; y++) {
+          for (var x = 0; x < frame.width; x++) {
+              var r = frame.data[((frame.width * y) + x) * 4];
+              var g = frame.data[((frame.width * y) + x) * 4 + 1];
+              var b = frame.data[((frame.width * y) + x) * 4 + 2];
+              var a = frame.data[((frame.width * y) + x) * 4 + 3];
+              if (frame.data[((frame.width * y) + x) * 4 + 3] != 0) {
+                  var offsetYup = y - 1;
+                  var offsetYdown = y + 1;
+                  var offsetXleft = x - 1;
+                  var offsetxRight = x + 1;
+                  var change = false;
+                  if (offsetYup > 0) {
+                      if (frame.data[((frame.width * (y - 1)) + (x)) * 4 + 3] == 0) {
+                          change = true;
+                      }
+                  }
+                  if (offsetYdown < frame.height) {
+                      if (frame.data[((frame.width * (y + 1)) + (x)) * 4 + 3] == 0) {
+                          change = true;
+                      }
+                  }
+                  if (offsetXleft > -1) {
+                      if (frame.data[((frame.width * y) + (x - 1)) * 4 + 3] == 0) {
+                          change = true;
+                      }
+                  }
+                  if (offsetxRight < frame.width) {
+                      if (frame.data[((frame.width * y) + (x + 1)) * 4 + 3] == 0) {
+                          change = true;
+                      }
+                  }
+                  if (change) {
+                    var gray = (frame.data[((frame.width * y) + x) * 4 + 0] * .393) + (frame.data[((frame.width * y) + x) * 4 + 1] * .769) + (frame.data[((frame.width * y) + x) * 4 + 2] * .189);
+                    frame.data[((frame.width * y) + x) * 4] = (gray * 0.2) + (imgBackgroundData.data[((frame.width * y) + x) * 4] * 0.9);
+                    frame.data[((frame.width * y) + x) * 4 + 1] = (gray * 0.2) + (imgBackgroundData.data[((frame.width * y) + x) * 4 + 1] * 0.9);
+                    frame.data[((frame.width * y) + x) * 4 + 2] = (gray * 0.2) + (imgBackgroundData.data[((frame.width * y) + x) * 4 + 2] * 0.9);
+                    frame.data[((frame.width * y) + x) * 4 + 3] = 255;
+                }
+              }
+          }
+        }
+    ctx1.putImageData(frame, 0, 0);
+    setTimeout(computeFrame, 0);
+    }
