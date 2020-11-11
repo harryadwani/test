@@ -45,6 +45,8 @@
 
         <div class="row no-gutters" id="stream2">
         </div>
+
+        <video id="recorded" playsinline loop></video>
         
     </div>
 
@@ -67,6 +69,13 @@
         <input type="button" class="btn btn-info" value="Screen Share On" id="ss_on">
         <input type="button" class="btn btn-info" value="Green Screen On" id="gs_on">
         <input type="button" class="btn btn-info" value="Green Screen Off" id="gs_off">
+
+        
+        <!-- recording buttons-->
+        <button id="record" >Start Recording</button>
+        <button id="play" >Play</button>
+        <button id="download" >Download</button>
+
     </div>
 
     <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>

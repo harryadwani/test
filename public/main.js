@@ -1,5 +1,4 @@
 const local = document.getElementById("local")
-
 const call = document.getElementById("call")
 const recieve = document.getElementById("recieve")
 const mute = document.getElementById("mute")
@@ -12,6 +11,115 @@ const ss_on = document.getElementById("ss_on")
 const gs_on = document.getElementById("gs_on")
 const gs_off = document.getElementById("gs_off")
 const gsnoti = document.getElementById("gsnoti")
+// -----------------------------------------------------------------------------------------------------recording code
+// recording buttons
+const recordedVideo = document.querySelector('video#recorded');
+recordedVideo.style.display="none";
+const recordButton = document.querySelector('button#record');
+const playButton = document.querySelector('button#play');
+const downloadButton = document.querySelector('button#download');
+
+
+
+
+
+let mediaRecorder;
+let recordedBlobs;
+    
+
+//for recording the mediastream
+//recorded media will be played below the localstream
+recordButton.addEventListener('click', () => {
+    if (recordButton.textContent === 'Start Recording') {
+      startRecording();
+      console.log('starting record')
+    } else {
+      stopRecording();
+      recordButton.textContent = 'Start Recording';
+      playButton.disabled = false;
+      downloadButton.disabled = false;
+    }
+  });
+
+
+
+playButton.addEventListener('click', () => {
+    recordedVideo.style.display="block";
+  const superBuffer = new Blob(recordedBlobs, {type: 'video/webm'});
+  recordedVideo.src = null;
+  recordedVideo.srcObject = null;
+  recordedVideo.src = window.URL.createObjectURL(superBuffer);
+  recordedVideo.controls = true;
+  recordedVideo.play();
+});
+
+  downloadButton.addEventListener('click', () => {
+    const blob = new Blob(recordedBlobs, {type: 'video/webm'});
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.style.display = 'none';
+    a.href = url;
+    a.download = 'test.webm';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    }, 100);
+  });
+
+
+
+  function handleDataAvailable(event) {
+    console.log('handleDataAvailable', event);
+    if (event.data && event.data.size > 0) {
+      recordedBlobs.push(event.data);
+    }
+  }
+  
+  function startRecording() {
+    recordedBlobs = [];
+    let options = {mimeType: 'video/webm;codecs=vp9,opus'};
+    if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+      console.error(`${options.mimeType} is not supported`);
+      options = {mimeType: 'video/webm;codecs=vp8,opus'};
+      if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+        console.error(`${options.mimeType} is not supported`);
+        options = {mimeType: 'video/webm'};
+        if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+          console.error(`${options.mimeType} is not supported`);
+          options = {mimeType: ''};
+        }
+      }
+    }
+  
+    try {
+      mediaRecorder = new MediaRecorder(localStream, options);
+    } catch (e) {
+      console.error('Exception while creating MediaRecorder:', e);
+      //errorMsgElement.innerHTML = `Exception while creating MediaRecorder: ${JSON.stringify(e)}`;
+      return;
+    }
+  
+    console.log('Created MediaRecorder', mediaRecorder, 'with options', options);
+    recordButton.textContent = 'Stop Recording';
+    playButton.disabled = true;
+    downloadButton.disabled = true;
+    mediaRecorder.onstop = (event) => {
+      console.log('Recorder stopped: ', event);
+      console.log('Recorded Blobs: ', recordedBlobs);
+    };
+    mediaRecorder.ondataavailable = handleDataAvailable;
+    mediaRecorder.start();
+    console.log('MediaRecorder started', mediaRecorder);
+  }
+  
+  function stopRecording() {
+    mediaRecorder.stop();
+  }
+  
+
+// -----------------------------------------------------------------------------------------------------
 
 
 
@@ -55,17 +163,18 @@ const config = {
 //var constraints = { audio: true, video:true }
 
 function getLocalMedia(){
+    //for watermark
     var sb = new WebRtcSB();
     var imgCopy = new ImageCopy();
     var imgAdd = new ImageAdd('sb.png', 10, 10, 50, 50);
     sb.setManipulators([imgCopy, imgAdd]);
 
+    //passing stream through middleware for watermark,rest is same,below method is defined in webercshitblt.js
     sb.sbStartCapture()
     .then((stream)=>{
         local.srcObject = stream
         localStream = stream
         local.id = socket.id
-       // console.log(typeof(stream.getVideoTracks()[0]))
         camVideoTrack = stream.getVideoTracks()[0];
         //camAudioTrack = stream.getAudioTracks()[0];
     })
