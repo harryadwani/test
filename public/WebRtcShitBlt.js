@@ -48,22 +48,25 @@ class WebRtcSB
     {
         this._ImageManipulators = ImageManipulators;
     }
-
+    
     // returns a promise resolving to a MediaStream
     sbStartCapture()
-    {
+    {let audio;
         return Promise.resolve()
             .then(()=>{
                 return navigator.mediaDevices.getUserMedia(this._constraints);
             })
             .then((stream) => {
                 this._hiddenVideoElement.srcObject = stream;
+                audio=stream.getAudioTracks()[0]
                 return Promise.resolve();
             })
             .then(() => {
                 this._createHiddenCanvas();
                 requestAnimationFrame(this._sendImageToCanvas.bind(this));
-                return this._hiddenCanvasElement.captureStream();
+                let final=this._hiddenCanvasElement.captureStream()
+                final.addTrack(audio);
+                return final//this._hiddenCanvasElement.captureStream()//.addTrack(stream.getAudioTracks()[0]);
             })
     }
 

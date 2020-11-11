@@ -176,7 +176,7 @@ function getLocalMedia(){
         localStream = stream
         local.id = socket.id
         camVideoTrack = stream.getVideoTracks()[0];
-        //camAudioTrack = stream.getAudioTracks()[0];
+        camAudioTrack = stream.getAudioTracks()[0];
     })
     .catch(err => {
         alert("Error : ", "couldnt ask for cam perms")
@@ -245,7 +245,7 @@ function makePeer(id){
    // peer[id].addStream(localStream)
 
    videoSender = peer[id].addTrack(camVideoTrack, localStream);
-   //audioSender = peer[id].addTrack(camAudioTrack, localStream);
+   audioSender = peer[id].addTrack(camAudioTrack, localStream);
 
 
     var stream1 = document.getElementById("stream1").getElementsByTagName('video').length
