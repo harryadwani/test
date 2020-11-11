@@ -17,7 +17,6 @@ const gsnoti = document.getElementById("gsnoti")
 
 //for green screen
 let c1,ctx1,c_tmp,ctx_tmp; 
-
 c1 = document.getElementById('output-canvas')
 gstoggle=0
 
@@ -42,10 +41,10 @@ const config = {
 
 // const constraints = {
 //     video : {
-//         width: 500,
-//         height: 300,
-//         frameRate: { max: 60 }
-//     },
+//         width: 100,
+//         height: 50,
+//        // frameRate: { max: 60 }
+//     }}
 //     audio: {
 //         sampleRate: 48000,
 //         channelCount: 2,
@@ -53,20 +52,38 @@ const config = {
 //         echoCancellation: true
 //     }
 // }
-var constraints = { audio: true, video:true }
+//var constraints = { audio: true, video:true }
 
 function getLocalMedia(){
-    navigator.mediaDevices.getUserMedia(constraints)
-    .then(stream => {
+    var sb = new WebRtcSB();
+    var imgCopy = new ImageCopy();
+    var imgAdd = new ImageAdd('sb.png', 10, 10, 50, 50);
+    sb.setManipulators([imgCopy, imgAdd]);
+
+    sb.sbStartCapture()
+    .then((stream)=>{
         local.srcObject = stream
         localStream = stream
         local.id = socket.id
+       // console.log(typeof(stream.getVideoTracks()[0]))
         camVideoTrack = stream.getVideoTracks()[0];
-        camAudioTrack = stream.getAudioTracks()[0];
+        //camAudioTrack = stream.getAudioTracks()[0];
     })
     .catch(err => {
         alert("Error : ", "couldnt ask for cam perms")
     })
+
+    // navigator.mediaDevices.getUserMedia(constraints)
+    // .then(stream => {
+    //     local.srcObject = stream
+    //     localStream = stream
+    //     local.id = socket.id
+    //     camVideoTrack = stream.getVideoTracks()[0];
+    //     camAudioTrack = stream.getAudioTracks()[0];
+    // })
+    // .catch(err => {
+    //     alert("Error : ", "couldnt ask for cam perms")
+    // })
     mute.style.display = "block"
     gs_off.style.display= "none"
    // c1.style.display="none"
@@ -119,7 +136,7 @@ function makePeer(id){
    // peer[id].addStream(localStream)
 
    videoSender = peer[id].addTrack(camVideoTrack, localStream);
-   audioSender = peer[id].addTrack(camAudioTrack, localStream);
+   //audioSender = peer[id].addTrack(camAudioTrack, localStream);
 
 
     var stream1 = document.getElementById("stream1").getElementsByTagName('video').length
